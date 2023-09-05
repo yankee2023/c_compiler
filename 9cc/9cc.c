@@ -9,6 +9,7 @@
 /* ----- Gloval Variable -----*/
 // 現在着目しているトークン
 Token *token;
+char *user_input;
 
 /**
  * @brief エラーを報告するための関数
@@ -17,6 +18,24 @@ Token *token;
 void error(char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    exit(1);
+}
+
+/**
+ * @brief エラー箇所を報告する
+ * @param loc
+ * @param fmt
+*/
+void error_at(char *loc, char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+
+    int pos = loc - user_input;
+    fprintf(stderr, "%s\n", user_input);
+    fprintf(stderr, "%*s", pos, " "); // pos個の空白を出力
+    fprintf(stderr, "^ ");
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
     exit(1);
@@ -49,7 +68,7 @@ void expect(char op) {
 */
 int expect_number() {
     if (token->kind != TK_NUM)
-        error("数ではありません");
+        error_at(token->str, "数ではありません");
     int val = token->val;
     token = token->next;
     return val;
@@ -109,6 +128,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    user_input = argv[1];
     // トークナイズする
     token = tokenize(argv[1]);
 
