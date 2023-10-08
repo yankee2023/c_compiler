@@ -46,8 +46,9 @@ void error_at(char *loc, char *fmt, ...) {
  * それ以外の場合には偽を返す。
 */
 bool consume(char op) {
-    if (token->kind != TK_RESERVED || token->str[0] != op)
+    if (token->kind != TK_RESERVED || token->str[0] != op) {
         return false;
+    }
     token = token->next;
     return true;
 }
@@ -57,8 +58,9 @@ bool consume(char op) {
  * それ以外の場合にはエラーを報告する。
 */
 void expect(char op) {
-    if (token->kind != TK_RESERVED || token->str[0] != op)
+    if (token->kind != TK_RESERVED || token->str[0] != op) {
         error("'%c'ではありません", op);
+    }
     token = token->next;
 }
 
@@ -67,8 +69,9 @@ void expect(char op) {
  * それ以外の場合にはエラーを報告する。
 */
 int expect_number() {
-    if (token->kind != TK_NUM)
+    if (token->kind != TK_NUM) {
         error_at(token->str, "数ではありません");
+    }
     int val = token->val;
     token = token->next;
     return val;
