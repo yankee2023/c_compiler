@@ -1,6 +1,7 @@
 CFLAGS=-std=c11 -g -static
+SRC=./src
 
-9cc: 9cc.c
+9cc: ${SRC}/9cc.c
 
 test: 9cc
 	./test.sh
