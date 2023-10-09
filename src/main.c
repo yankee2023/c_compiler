@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 
     token = tokenize(argv[1]);
 
-    parser();
+    parse();
 
     return 0;
 }

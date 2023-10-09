@@ -6,7 +6,7 @@
 #include "tokenizer/tokenizer.h"
 #include "parser/parser.h"
 
-void parser() {
+void parse() {
     printf(".intel_syntax noprefix\n");
     printf(".globl main\n");
     printf("main:\n");
