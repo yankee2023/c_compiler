@@ -1,5 +1,5 @@
-#ifndef _9CC_
-#define _9CC_
+#ifndef _TOKENIZER_
+#define _TOKENIZER_
 
 /* ----- Enum Definition----- */
 typedef enum {
@@ -19,5 +19,6 @@ struct Token {
 
 /* ----- Gloval Variable ----- */
 extern Token *token;
+extern char* user_input;
 
 #endif
