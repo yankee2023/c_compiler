@@ -18,7 +18,11 @@ struct Token {
 };
 
 /* ----- Gloval Variable ----- */
-extern Token *token;
+extern Token* token;
 extern char* user_input;
+
+Token* tokenize(char *p);
+void error_at(char *loc, char *fmt, ...);
+void error(char *fmt, ...);
 
 #endif

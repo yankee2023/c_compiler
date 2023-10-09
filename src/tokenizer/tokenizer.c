@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "tokenizer/tokenizer.h"
+#include "logger/log.h"
 
 /* ----- Gloval Variable -----*/
 // 現在着目しているトークン
@@ -13,13 +14,12 @@ Token *token;
 
 /**
  * @brief エラーを報告するための関数
- * @param fmt printfと同じ引数
+ * @param fmt log_debugと同じ引数
  */ 
 void error(char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
+    log_error(fmt, ap);
     exit(1);
 }
 
@@ -33,58 +33,17 @@ void error_at(char *loc, char *fmt, ...) {
     va_start(ap, fmt);
 
     int32_t pos = loc - user_input;
-    fprintf(stderr, "%s\n", user_input);
-    fprintf(stderr, "%*s", pos, " "); // pos個の空白を出力
-    fprintf(stderr, "^ ");
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
+    log_error("%s", user_input);
+    log_error("%*s", pos, " "); // pos個の空白を出力
+    log_error("^ ");
+    log_error(fmt, ap);
     exit(1);
-}
-
-/**
- * @brief 次のトークンが期待している記号のときには、トークンを1つ読み進めて真を返す。
- * それ以外の場合には偽を返す。
-*/
-bool consume(char op) {
-    if (token->kind != TK_RESERVED || token->str[0] != op) {
-        return false;
-    }
-    token = token->next;
-    return true;
-}
-
-/**
- * @brief 次のトークンが期待している記号のときには、トークンを1つ読み進める。
- * それ以外の場合にはエラーを報告する。
-*/
-void expect(char op) {
-    if (token->kind != TK_RESERVED || token->str[0] != op) {
-        error("'%c'ではありません", op);
-    }
-    token = token->next;
-}
-
-/**
- * @brief 次のトークンが数値の場合、トークンを1つ読み進めてその数値を返す。
- * それ以外の場合にはエラーを報告する。
-*/
-int32_t expect_number() {
-    if (token->kind != TK_NUM) {
-        error_at(token->str, "数ではありません");
-    }
-    int32_t val = token->val;
-    token = token->next;
-    return val;
-}
-
-bool at_eof() {
-    return token->kind == TK_EOF;
 }
 
 /**
  * @brief 新しいトークンを作成してcurに繋げる
 */
-Token *new_token(TokenKind kind, Token *cur, char *str) {
+Token* new_token(TokenKind kind, Token *cur, char *str) {
     Token *tok = calloc(1, sizeof(Token));
     tok->kind = kind;
     tok->str = str;
@@ -95,7 +54,7 @@ Token *new_token(TokenKind kind, Token *cur, char *str) {
 /**
  * @brief 入力文字列pをトークナイズしてそれを返す
 */
-Token *tokenize(char *p) {
+Token* tokenize(char *p) {
     Token head;
     head.next = NULL;
     Token *cur = &head;
