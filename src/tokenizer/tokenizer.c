@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "tokenizer/tokenizer.h"
 
 /* ----- Gloval Variable -----*/
@@ -31,7 +32,7 @@ void error_at(char *loc, char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
 
-    int pos = loc - user_input;
+    int32_t pos = loc - user_input;
     fprintf(stderr, "%s\n", user_input);
     fprintf(stderr, "%*s", pos, " "); // pos個の空白を出力
     fprintf(stderr, "^ ");
@@ -67,11 +68,11 @@ void expect(char op) {
  * @brief 次のトークンが数値の場合、トークンを1つ読み進めてその数値を返す。
  * それ以外の場合にはエラーを報告する。
 */
-int expect_number() {
+int32_t expect_number() {
     if (token->kind != TK_NUM) {
         error_at(token->str, "数ではありません");
     }
-    int val = token->val;
+    int32_t val = token->val;
     token = token->next;
     return val;
 }

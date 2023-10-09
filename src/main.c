@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "tokenizer/tokenizer.h"
 #include "parser/parser.h"
 
 char *user_input;
 
-int main(int argc, char *argv[]) {
+int32_t main(int32_t argc, char *argv[]) {
     if (argc != 2) {
         fprintf(stderr, "引数の個数が正しくありません\n");
         return 1;
