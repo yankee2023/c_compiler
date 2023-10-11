@@ -49,24 +49,30 @@ bool at_eof() {
 }
 
 void parse() {
-    log_debug(".intel_syntax noprefix");
-    log_debug(".globl main");
-    log_debug("main:");
+
+    FILE* fp;
+    fp = fopen("9cc.asm", "w");
+
+    fprintf(fp, ".intel_syntax noprefix\n");
+    fprintf(fp, ".globl main\n");
+    fprintf(fp, "main:\n");
 
     // 式の最初は数でなければならないので、それをチェックして
     // 最初のmov命令を出力
-    log_debug("    mov rax, %d", expect_number());
+    fprintf(fp, "    mov rax, %d\n", expect_number());
 
     while (!at_eof())
     {
         if(consume('+')) {
-            log_debug("    add rax, %d", expect_number());
+            fprintf(fp, "    add rax, %d\n", expect_number());
             continue;
         }
 
         expect('-');
-        log_debug("    sub rax, %d", expect_number());
+        fprintf(fp, "    sub rax, %d\n", expect_number());
     }
 
-    log_debug("    ret");
+    fprintf(fp, "    ret\n");
+
+    fclose(fp);
 }
