@@ -14,9 +14,11 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 add_custom_command(
-    TARGET ${PROJECT_NAME}
+    TARGET ${PROJECT_NAME}                      # ファイルをコピーする際に依存するターゲット
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/bin/
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_BINARY_DIR}/src/${PROJECT_NAME} # コピー元のファイルパス
+        ${CMAKE_SOURCE_DIR}/bin/                # コピー先のファイルパス
 )
 
 file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
