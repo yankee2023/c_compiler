@@ -12,3 +12,11 @@ target_link_libraries(${PROJECT_NAME}
     tokenizer
     parser
 )
+
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/src/${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/bin/
+)
+
+file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
