@@ -26,7 +26,7 @@ bool consume(char op) {
 */
 void expect(char op) {
     if (token->kind != TK_RESERVED || token->str[0] != op) {
-        error("'%c'ではありません", op);
+        error_at(token->str, "'%c'ではありません", op);
     }
     token = token->next;
 }

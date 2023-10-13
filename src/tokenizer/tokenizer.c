@@ -13,30 +13,26 @@
 Token *token;
 
 /**
- * @brief エラーを報告するための関数
- * @param fmt log_debugと同じ引数
- */ 
-void error(char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    log_error(fmt, ap);
-    exit(1);
-}
-
-/**
  * @brief エラー箇所を報告する
- * @param loc
- * @param fmt
+ * @param loc エラー箇所のある文字列
+ * @param fmt エラーメッセージ
 */
 void error_at(char *loc, char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
+    char this[8] = "^ ";
+    char brank[64] = "";
+    char message[256] = "";
 
     int32_t pos = loc - user_input;
     log_error("%s", user_input);
-    log_error("%*s", pos, " "); // pos個の空白を出力
-    log_error("^ ");
-    log_error(fmt, ap);
+    for (size_t i = 0; i < pos; i++) {
+        brank[i] = ' ';
+    }
+    strncat(message, brank, strlen(brank));
+    strncat(message, this, strlen(this));
+    strncat(message, fmt, strlen(fmt));
+    log_error(message);
     exit(1);
 }
 
@@ -77,7 +73,7 @@ Token* tokenize(char *p) {
             continue;
         }
 
-        error("トークナイズできません");
+        error_at(p, "トークナイズできません");
     }
 
     new_token(TK_EOF, cur, p);
