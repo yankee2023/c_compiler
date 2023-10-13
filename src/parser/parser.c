@@ -51,7 +51,7 @@ bool at_eof() {
 void parse() {
 
     FILE* fp;
-    fp = fopen("9cc.asm", "w");
+    fp = fopen("9cc.s", "w");
 
     fprintf(fp, ".intel_syntax noprefix\n");
     fprintf(fp, ".globl main\n");
@@ -73,6 +73,7 @@ void parse() {
     }
 
     fprintf(fp, "    ret\n");
+    fprintf(fp, "\n");
 
     fclose(fp);
 }

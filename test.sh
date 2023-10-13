@@ -1,17 +1,24 @@
 #!/bin/bash
+
+if [ -s bin/c_compiler ]; then
+	cd bin
+else
+	exit1
+fi
+
 assert() {
 	expected="$1"
 	input="$2"
 
-	./src/9cc "$input" > tmp.s
-	cc -o tmp tmp.s
-	./tmp
+	./c_compiler "$input"
+	cc -o 9cc 9cc.s
+	./9cc
 	actual="$?"
 
 	if [ "$actual" = "$expected" ]; then
-		echo "$input => $actual"
+		echo "input:$input => actual:$actual"
 	else
-		echo "$input => $expected expected, but got $actual"
+		echo "input:$input => $expected expected, but got $actual"
 		exit 1
 	fi
 }
