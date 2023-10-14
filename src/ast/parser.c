@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "tokenizer/tokenizer.h"
-#include "parser/parser.h"
+#include "ast/parser.h"
 #include "logger/log.h"
 
 /**
