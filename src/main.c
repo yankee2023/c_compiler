@@ -10,6 +10,12 @@
 char *g_user_input;
 
 int32_t main(int32_t argc, char *argv[]) {
+    #if DEBUG
+    log_set_level(LOG_TRACE);
+    #else
+    log_set_level(LOG_INFO);
+    #endif
+
     if (argc != 2) {
         log_error("引数の個数が正しくありません");
         return 1;

@@ -1,7 +1,15 @@
 cmake_minimum_required(VERSION 3.22.1)
 project(${PROJECT_NAME} C)
 
-add_compile_options(-Wall)
+set(CMAKE_C_FLAG "-Wall")
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # デバッグビルド用のオプションを設定
+    add_compile_options(-g -O0)  # -gはデバッグ情報を含めるため、-O0は最適化を無効化
+else()
+    # リリースビルド用のオプションを設定
+    add_compile_options(-O3)  # 最適化を有効にする
+endif()
 
 add_subdirectory(logger)
 add_subdirectory(tokenizer)
