@@ -7,16 +7,22 @@
 #include "ast/parser.h"
 #include "assembler/code_generator.h"
 
-char *user_input;
+char *g_user_input;
 
 int32_t main(int32_t argc, char *argv[]) {
+    #ifndef NDEBUG
+        log_set_level(LOG_DEBUG);
+    #else
+        log_set_level(LOG_INFO);
+    #endif
+
     if (argc != 2) {
         log_error("引数の個数が正しくありません");
         return 1;
     }
 
-    user_input = argv[1];
-    token = tokenize(user_input);
+    g_user_input = argv[1];
+    g_token = tokenize(g_user_input);
 
     Node* node = parse();
 
