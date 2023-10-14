@@ -1,22 +1,26 @@
 #ifndef _PARSER_
 #define _PARSER_
 
-typedef enum {
-    ND_ADD,     // +
-    ND_SUB,     // -
-    ND_MUL,     // *
-    ND_DIV,     // /
-    DN_NUM,     // 整数
+#include <stdint.h>
+
+typedef enum
+{
+    ND_ADD, // +
+    ND_SUB, // -
+    ND_MUL, // *
+    ND_DIV, // /
+    ND_NUM, // 整数
 } NodeKind;
 
 typedef struct Node Node;
-struct Node {
-    NodeKind kind;  // ノードの型
-    Node* lhs;      // 左辺(left hand side)
-    Node* rhs;      // 右辺(right hand side)
-    int value;      // kindがND_NUMの場合のみ使う
+struct Node
+{
+    NodeKind kind; // ノードの型
+    Node *lhs;     // 左辺(left hand side)
+    Node *rhs;     // 右辺(right hand side)
+    int32_t value; // kindがND_NUMの場合のみ使う
 };
 
-void parse();
+Node* parse();
 
 #endif

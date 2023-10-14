@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "logger/log.h"
 #include "tokenizer/tokenizer.h"
 #include "ast/parser.h"
-#include "logger/log.h"
+#include "assembler/code_generator.h"
 
 char *user_input;
 
@@ -15,10 +16,11 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     user_input = argv[1];
+    token = tokenize(user_input);
 
-    token = tokenize(argv[1]);
+    Node* node = parse();
 
-    parse();
+    code_gen(node);
 
     return 0;
 }
