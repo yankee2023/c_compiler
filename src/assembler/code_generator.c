@@ -33,6 +33,8 @@ static void parse_node(Node* node) {
         fprintf(fp, "  cqo\n");
         fprintf(fp, "  idiv rdi\n");
         break;
+    default:
+        break;
     }
 
     fprintf(fp, "  push rax\n");

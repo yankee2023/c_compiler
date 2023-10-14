@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.22.1)
 project(${PROJECT_NAME} C)
 
+add_compile_options(-Wall)
+
 add_subdirectory(logger)
 add_subdirectory(tokenizer)
 add_subdirectory(ast)
