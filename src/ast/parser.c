@@ -12,6 +12,7 @@ static const char* s_node_kind_str[] = { "ND_ADD", "ND_SUB", "ND_MUL", "ND_DIV",
 
 static Node* expr();
 static Node* mul();
+static Node* unary();
 static Node* primary();
 
 /**
@@ -47,6 +48,8 @@ Node* create_new_node_num(int32_t value) {
 /**
  * @brief 次のトークンが期待している記号のときには、トークンを1つ読み進めて真を返す。
  * それ以外の場合には偽を返す。
+ * @param [in] op 期待している記号
+ * @return true:見つかった false:見つからなかった
 */
 bool consume(char op) {
     if (g_token->kind != TK_RESERVED || g_token->str[0] != op) {
@@ -92,6 +95,7 @@ bool at_eof() {
 
 /**
  * @brief primary = num | "(" expr ")"
+ * @brief Node型ポインタ
 */
 static Node* primary() {
     // 次のトークンが"("なら、"(" expr ")"のはず
@@ -106,16 +110,33 @@ static Node* primary() {
 }
 
 /**
- * @brief mul = primary ("*" primary | "/" primary)*
+ * @brief unary = ("+" | "-")? primary
+ * @details -xを0-xに置き換えて単項マイナスを実現している
+ * @return Node型ポインタ
+*/
+static Node* unary() {
+    if (consume('+')) {
+        return primary();
+    }
+    if (consume('-')) {
+        return create_new_node(ND_SUB, create_new_node_num(0), primary());
+    }
+
+    return primary();
+}
+
+/**
+ * @brief mul = unary ("*" unary | "/" unary)*
+ * @return Node型ポインタ
 */
 static Node* mul() {
-    Node* node = primary();
+    Node* node = unary();
 
     for (;;) {
         if (consume('*')) {
-            node = create_new_node(ND_MUL, node, primary());
+            node = create_new_node(ND_MUL, node, unary());
         } else if (consume('/')) {
-            node = create_new_node(ND_DIV, node, primary());
+            node = create_new_node(ND_DIV, node, unary());
         } else {
             return node;
         }
@@ -124,6 +145,7 @@ static Node* mul() {
 
 /**
  * @brief expr = mul ("+" mul | "-" mul)*
+ * @return Node型ポインタ
 */
 static Node* expr() {
     Node* node = mul();
@@ -141,6 +163,7 @@ static Node* expr() {
 
 /**
  * @brief 
+ * @return Node型ポインタ
 */
 Node* parse() {
     return expr();
