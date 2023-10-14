@@ -8,7 +8,7 @@
 #include "ast/parser.h"
 #include "logger/log.h"
 
-const char* node_kind_str[] = { "ND_ADD", "ND_SUB", "ND_MUL", "ND_DIV", "ND_NUM" };
+static const char* s_node_kind_str[] = { "ND_ADD", "ND_SUB", "ND_MUL", "ND_DIV", "ND_NUM" };
 
 static Node* expr();
 static Node* mul();
@@ -27,7 +27,7 @@ Node* create_new_node(NodeKind kind, Node* lhs, Node* rhs) {
     new_node->kind = kind;
     new_node->lhs = lhs;
     new_node->rhs = rhs;
-    log_debug("Create %s.", node_kind_str[new_node->kind]);
+    log_debug("Create %s.", s_node_kind_str[new_node->kind]);
     return new_node;
 }
 
@@ -40,7 +40,7 @@ Node* create_new_node_num(int32_t value) {
     Node* new_node = calloc(1, sizeof(Node));
     new_node->kind = ND_NUM;
     new_node->value = value;
-    log_debug("Create %s. Value is %d", node_kind_str[new_node->kind], new_node->value);
+    log_debug("Create %s. Value is %d", s_node_kind_str[new_node->kind], new_node->value);
     return new_node;
 }
 
@@ -49,12 +49,12 @@ Node* create_new_node_num(int32_t value) {
  * それ以外の場合には偽を返す。
 */
 bool consume(char op) {
-    if (token->kind != TK_RESERVED || token->str[0] != op) {
+    if (g_token->kind != TK_RESERVED || g_token->str[0] != op) {
         return false;
     }
 
-    log_debug("Consume %c.", token->str[0]);
-    token = token->next;
+    log_debug("Consume %c.", g_token->str[0]);
+    g_token = g_token->next;
     return true;
 }
 
@@ -63,12 +63,12 @@ bool consume(char op) {
  * それ以外の場合にはエラーを報告する。
 */
 void expect(char op) {
-    if (token->kind != TK_RESERVED || token->str[0] != op) {
-        error_at(token->str, "'%c'ではありません", op);
+    if (g_token->kind != TK_RESERVED || g_token->str[0] != op) {
+        error_at(g_token->str, "'%c'ではありません", op);
     }
 
-    log_debug("Existed %c.", token->str[0]);
-    token = token->next;
+    log_debug("Existed %c.", g_token->str[0]);
+    g_token = g_token->next;
 }
 
 /**
@@ -76,18 +76,18 @@ void expect(char op) {
  * それ以外の場合にはエラーを報告する。
 */
 int32_t expect_number() {
-    if (token->kind != TK_NUM) {
-        error_at(token->str, "数ではありません");
+    if (g_token->kind != TK_NUM) {
+        error_at(g_token->str, "数ではありません");
     }
-    int32_t val = token->val;
+    int32_t val = g_token->val;
 
-    log_debug("Existed %d.", token->val);
-    token = token->next;
+    log_debug("Existed %d.", g_token->val);
+    g_token = g_token->next;
     return val;
 }
 
 bool at_eof() {
-    return token->kind == TK_EOF;
+    return g_token->kind == TK_EOF;
 }
 
 /**

@@ -10,7 +10,7 @@
 
 /* ----- Gloval Variable -----*/
 // 現在着目しているトークン
-Token *token;
+Token *g_token;
 
 /**
  * @brief エラー箇所を報告する
@@ -24,8 +24,8 @@ void error_at(char *loc, char *fmt, ...) {
     char brank[64] = "";
     char message[256] = "";
 
-    int32_t pos = loc - user_input;
-    log_error("%s", user_input);
+    int32_t pos = loc - g_user_input;
+    log_error("%s", g_user_input);
     for (size_t i = 0; i < pos; i++) {
         brank[i] = ' ';
     }
