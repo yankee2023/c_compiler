@@ -69,19 +69,18 @@ Token* tokenize(char *p) {
             continue;
         }
 
-        if (strchr("+-*/()<>", *p)) {
-            cur = new_token(TK_RESERVED, cur, p, 1);
-            p++;
-            continue;
-        }
-
         if (startswitch(p, "==") || startswitch(p, "!=") || startswitch(p, "<=") || startswitch(p, ">=")) {
             cur = new_token(TK_RESERVED, cur, p, 2);
             p += 2;
             continue;
         }
-        
 
+        if (strchr("+-*/()<>", *p)) {
+            cur = new_token(TK_RESERVED, cur, p, 1);
+            p++;
+            continue;
+        }
+        
         if (isdigit(*p)) {
             cur = new_token(TK_NUM, cur, p, 0);
             char* q = p;
