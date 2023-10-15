@@ -8,9 +8,14 @@
 #include "ast/parser.h"
 #include "logger/log.h"
 
-static const char* s_node_kind_str[] = { "ND_ADD", "ND_SUB", "ND_MUL", "ND_DIV", "ND_NUM" };
+static const char* s_node_kind_str[] = {"ND_ADD", "ND_SUB", "ND_MUL", "ND_DIV",
+                                        "ND_EQ", "ND_NE", "ND_LT", "ND_LE",
+                                        "ND_NUM"};
 
 static Node* expr();
+static Node* equality();
+static Node* relational();
+static Node* add();
 static Node* mul();
 static Node* unary();
 static Node* primary();
@@ -46,17 +51,17 @@ Node* create_new_node_num(int32_t value) {
 }
 
 /**
- * @brief 次のトークンが期待している記号のときには、トークンを1つ読み進めて真を返す。
+ * @brief 次のトークンが期待している文字列のときには、トークンを1つ読み進めて真を返す。
  * それ以外の場合には偽を返す。
- * @param [in] op 期待している記号
+ * @param [in] op 期待している文字列
  * @return true:見つかった false:見つからなかった
 */
-bool consume(char op) {
-    if (g_token->kind != TK_RESERVED || g_token->str[0] != op) {
+bool consume(char* op) {
+    if (g_token->kind != TK_RESERVED || strlen(op) != g_token->len || memcmp(g_token->str, op, g_token->len)) {
         return false;
     }
 
-    log_debug("Consume %c.", g_token->str[0]);
+    log_debug("Consume %s.", g_token->str);
     g_token = g_token->next;
     return true;
 }
@@ -65,12 +70,12 @@ bool consume(char op) {
  * @brief 次のトークンが期待している記号のときには、トークンを1つ読み進める。
  * それ以外の場合にはエラーを報告する。
 */
-void expect(char op) {
-    if (g_token->kind != TK_RESERVED || g_token->str[0] != op) {
-        error_at(g_token->str, "'%c'ではありません", op);
+void expect(char* op) {
+    if (g_token->kind != TK_RESERVED || strlen(op) != g_token->len || memcmp(g_token->str, op, g_token->len)) {
+        error_at(g_token->str, "'%s'ではありません", op);
     }
 
-    log_debug("Existed %c.", g_token->str[0]);
+    log_debug("Existed %s.", g_token->str);
     g_token = g_token->next;
 }
 
@@ -94,35 +99,82 @@ bool at_eof() {
 }
 
 /**
+ * @brief expr = equality
+ * @return Node型ポインタ
+*/
+static Node* expr() {
+    return equality();
+}
+
+/**
+ * @brief equality = relational ("==" relational | "!=" relational)*
+*/
+static Node* equality() {
+    Node* node = relational();
+
+    for (;;) {
+        if (consume("==")) {
+            node = create_new_node(ND_EQ, node, relational());
+        } else if (consume("!=")) {
+            node = create_new_node(ND_NE, node, relational());
+        } else {
+            return node;
+        }   
+    }
+}
+
+/**
+ * @brief relational = add ("<" add | "<=" add | ">" add | ">= add")*
+*/
+static Node* relational() {
+    Node* node = add();
+
+    for (;;) {
+        if (consume("<")) {
+            node = create_new_node(ND_LT, node, add());
+        } else if (consume("<=")) {
+            node = create_new_node(ND_LE, node, add());
+        } else if (consume(">")) {
+            node = create_new_node(ND_LT, node, add());
+        } else if (consume(">=")) {
+            node = create_new_node(ND_LE, node, add());
+        } else {
+            return node;
+        }
+    }
+}
+
+/**
+ * @brief add = mul ("+" mul | "-" mul)*
+*/
+static Node* add() {
+    Node* node = mul();
+
+    for (;;) {
+        if (consume("+")) {
+            node = create_new_node(ND_ADD, node, mul());
+        } else if (consume("-")) { 
+            node = create_new_node(ND_SUB, node, mul());
+        } else {
+            return node;
+        }
+    }
+}
+
+/**
  * @brief primary = num | "(" expr ")"
  * @brief Node型ポインタ
 */
 static Node* primary() {
     // 次のトークンが"("なら、"(" expr ")"のはず
-    if (consume('(')) {
+    if (consume("(")) {
         Node* node = expr();
-        expect(')');
+        expect(")");
         return node;
     }
 
     // そうでなければ数値のはず
     return create_new_node_num(expect_number());    
-}
-
-/**
- * @brief unary = ("+" | "-")? primary
- * @details -xを0-xに置き換えて単項マイナスを実現している
- * @return Node型ポインタ
-*/
-static Node* unary() {
-    if (consume('+')) {
-        return primary();
-    }
-    if (consume('-')) {
-        return create_new_node(ND_SUB, create_new_node_num(0), primary());
-    }
-
-    return primary();
 }
 
 /**
@@ -133,9 +185,9 @@ static Node* mul() {
     Node* node = unary();
 
     for (;;) {
-        if (consume('*')) {
+        if (consume("*")) {
             node = create_new_node(ND_MUL, node, unary());
-        } else if (consume('/')) {
+        } else if (consume("/")) {
             node = create_new_node(ND_DIV, node, unary());
         } else {
             return node;
@@ -144,25 +196,23 @@ static Node* mul() {
 }
 
 /**
- * @brief expr = mul ("+" mul | "-" mul)*
+ * @brief unary = ("+" | "-")? primary
+ * @details -xを0-xに置き換えて単項マイナスを実現している
  * @return Node型ポインタ
 */
-static Node* expr() {
-    Node* node = mul();
-
-    for (;;) {
-        if (consume('+')) {
-            node = create_new_node(ND_ADD, node, mul());
-        } else if (consume('-')) { 
-            node = create_new_node(ND_SUB, node, mul());
-        } else {
-            return node;
-        }
+static Node* unary() {
+    if (consume("+")) {
+        return primary();
     }
+    if (consume("-")) {
+        return create_new_node(ND_SUB, create_new_node_num(0), primary());
+    }
+
+    return primary();
 }
 
 /**
- * @brief 
+ * @brief parse = expr
  * @return Node型ポインタ
 */
 Node* parse() {
