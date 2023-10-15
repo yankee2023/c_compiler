@@ -35,13 +35,22 @@ void error_at(char *loc, char *fmt, ...) {
 }
 
 /**
+ * @brief 文字列比較
+ * @return true:同じ, false:違う
+*/
+bool startswitch(char* p, char* q) {
+    return memcmp(p, q, strlen(q)) == 0;
+}
+
+/**
  * @brief 新しいトークンを作成してcurに繋げる
 */
-Token* new_token(TokenKind kind, Token *cur, char *str) {
+Token* new_token(TokenKind kind, Token *cur, char *str, int32_t len) {
     Token *tok = calloc(1, sizeof(Token));
     tok->kind = kind;
     tok->str = str;
     cur->next = tok;
+    tok->len = len;
     return tok;
 }
 
@@ -60,20 +69,30 @@ Token* tokenize(char *p) {
             continue;
         }
 
-        if ('+' == *p || '-' == *p || '*' == *p || '/' == *p || '(' == *p || ')' == *p) {
-            cur = new_token(TK_RESERVED, cur, p++);
+        if (strchr("+-*/()<>", *p)) {
+            cur = new_token(TK_RESERVED, cur, p, 1);
+            p++;
             continue;
         }
 
+        if (startswitch(p, "==") || startswitch(p, "!=") || startswitch(p, "<=") || startswitch(p, ">=")) {
+            cur = new_token(TK_RESERVED, cur, p, 2);
+            p += 2;
+            continue;
+        }
+        
+
         if (isdigit(*p)) {
-            cur = new_token(TK_NUM, cur, p);
+            cur = new_token(TK_NUM, cur, p, 0);
+            char* q = p;
             cur->val = strtol(p, &p, 10);
+            cur->len = p - q;
             continue;
         }
 
         error_at(p, "トークナイズできません");
     }
 
-    new_token(TK_EOF, cur, p);
+    new_token(TK_EOF, cur, p, 0);
     return head.next;
 }

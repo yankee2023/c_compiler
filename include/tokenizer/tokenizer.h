@@ -1,20 +1,21 @@
 #ifndef _TOKENIZER_
 #define _TOKENIZER_
 
-/* ----- Enum Definition----- */
+/* ----- Enum Definition ----- */
 typedef enum {
-  TK_RESERVED, 
+  TK_RESERVED,
   TK_NUM,
   TK_EOF,
 } TokenKind;
 
-/* ----- Struct Definition----- */
+/* ----- Struct Definition ----- */
 typedef struct Token Token;
 struct Token {
-  TokenKind kind;
-  int val;        // kindがTK_NUMの場合、その数値
-  char *str;      // トークン文字列
-  Token *next;
+  TokenKind kind;     // トークンの型
+  int32_t   val;      // kindがTK_NUMの場合、その数値
+  char      *str;     // トークン文字列
+  int32_t   len;      // トークンの長さ
+  Token     *next;    // 次の入力トークン
 };
 
 /* ----- Gloval Variable ----- */
