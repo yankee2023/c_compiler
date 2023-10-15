@@ -33,6 +33,26 @@ static void parse_node(Node* node) {
         fprintf(s_fp, "  cqo\n");
         fprintf(s_fp, "  idiv rdi\n");
         break;
+    case ND_EQ:
+        fprintf(s_fp, "  cmp rax, rdi\n");
+        fprintf(s_fp, "  sete al\n");
+        fprintf(s_fp, "  movzb rax, al\n");
+        break;
+    case ND_NE:
+        fprintf(s_fp, "  cmp rax, rdi\n");
+        fprintf(s_fp, "  setne al\n");
+        fprintf(s_fp, "  movzb rax, al\n");
+        break;
+    case ND_LT:
+        fprintf(s_fp, "  cmp rax, rdi\n");
+        fprintf(s_fp, "  setl al\n");
+        fprintf(s_fp, "  movzb rax, al\n");
+        break;
+    case ND_LE:
+        fprintf(s_fp, "  cmp rax, rdi\n");
+        fprintf(s_fp, "  setle al\n");
+        fprintf(s_fp, "  movzb rax, al\n");
+        break;
     default:
         break;
     }
