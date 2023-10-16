@@ -31,7 +31,9 @@ assert	47	"5+6*7"
 assert	15	"5*(9-6)"
 assert	4	"(3+5)/2"
 assert	10	"-10+20"
-# 0=false, 1=true
+
+# 比較演算子
+echo "0=false, 1=true"
 assert	0	"0==1"
 assert	1	"42==42"
 assert	1	"0!=1"
