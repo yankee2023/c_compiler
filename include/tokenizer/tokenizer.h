@@ -3,9 +3,10 @@
 
 /* ----- Enum Definition ----- */
 typedef enum {
-  TK_RESERVED,
-  TK_NUM,
-  TK_EOF,
+  TK_RESERVED,  // 記号
+  TK_IDENT,     // 識別子
+  TK_NUM,       // 整数トークン
+  TK_EOF,       // 入力の終わりを表すトークン
 } TokenKind;
 
 /* ----- Struct Definition ----- */
