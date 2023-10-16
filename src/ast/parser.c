@@ -12,7 +12,17 @@ static const char* s_node_kind_str[] = {"ND_ADD", "ND_SUB", "ND_MUL", "ND_DIV",
                                         "ND_EQ", "ND_NE", "ND_LT", "ND_LE",
                                         "ND_NUM"};
 
-static Node* expr();
+/**
+ * パースの結果として複数のノードを保存
+ * パース結果のノードを順にストアする
+ * 末尾かわかるように最後のノードはNULLで埋めておく
+*/
+Node* g_code[100];
+
+static void program();
+static Node* statement();
+static Node* expr(); 
+static Node* assign();
 static Node* equality();
 static Node* relational();
 static Node* add();
@@ -66,6 +76,10 @@ bool consume(char* op) {
     return true;
 }
 
+static Token* consume_ident() {
+
+}
+
 /**
  * @brief 次のトークンが期待している記号のときには、トークンを1つ読み進める。
  * それ以外の場合にはエラーを報告する。
@@ -99,11 +113,44 @@ bool at_eof() {
 }
 
 /**
- * @brief expr = equality
+ * @brief program = statement*
+*/
+static void program() {
+    int32_t i = 0;
+    while (!at_eof()) {
+        g_code[i] = statement();
+        i++;
+    }
+        
+    g_code[i] = NULL;
+}
+
+/**
+ * @brief statement = expr ";"
+ * @details ";"区切りで複数行の式を記述可能にしている
+*/
+static Node* statement() {
+    Node* node = expr();
+    expect(";");
+    return node;
+}
+
+/**
+ * @brief expr = assign
  * @return Node型ポインタ
 */
 static Node* expr() {
-    return equality();
+    return assign();
+}
+
+/**
+ * @brief assign = equality ("=" assign)?
+*/
+static Node* assign() {
+    Node* node = equality();
+    if (consume(";")) {
+        node = create_new_node(ND_ASSIGN, node, assign());
+    }
 }
 
 /**
@@ -162,22 +209,6 @@ static Node* add() {
 }
 
 /**
- * @brief primary = num | "(" expr ")"
- * @brief Node型ポインタ
-*/
-static Node* primary() {
-    // 次のトークンが"("なら、"(" expr ")"のはず
-    if (consume("(")) {
-        Node* node = expr();
-        expect(")");
-        return node;
-    }
-
-    // そうでなければ数値のはず
-    return create_new_node_num(expect_number());    
-}
-
-/**
  * @brief mul = unary ("*" unary | "/" unary)*
  * @return Node型ポインタ
 */
@@ -212,9 +243,33 @@ static Node* unary() {
 }
 
 /**
- * @brief parse = expr
+ * @brief primary = num | ident | "(" expr ")"
+ * @brief Node型ポインタ
+*/
+static Node* primary() {
+    // 次のトークンが"("なら、"(" expr ")"のはず
+    if (consume("(")) {
+        Node* node = expr();
+        expect(")");
+        return node;
+    }
+
+    Token *tok = consume_ident();
+    if (tok) {
+        Node *node = calloc(1, sizeof(Node));
+        node->kind = ND_LVAR;
+        node->offset = (tok->str[0] - 'a' + 1) * 8;
+        return node;
+    }
+
+    // そうでなければ数値のはず
+    return create_new_node_num(expect_number());    
+}
+
+/**
+ * @brief parse = program
  * @return Node型ポインタ
 */
 Node* parse() {
-    return expr();
+    program();
 }
