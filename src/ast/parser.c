@@ -135,9 +135,9 @@ static Node* relational() {
         } else if (consume("<=")) {
             node = create_new_node(ND_LE, node, add());
         } else if (consume(">")) {
-            node = create_new_node(ND_LT, node, add());
+            node = create_new_node(ND_LT, add(), node);
         } else if (consume(">=")) {
-            node = create_new_node(ND_LE, node, add());
+            node = create_new_node(ND_LE, add(), node);
         } else {
             return node;
         }
