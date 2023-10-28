@@ -96,6 +96,7 @@ void expect(char* op) {
 /**
  * @brief 次のトークンが数値の場合、トークンを1つ読み進めてその数値を返す。
  * それ以外の場合にはエラーを報告する。
+ * @return 数値
 */
 int32_t expect_number() {
     if (g_token->kind != TK_NUM) {
@@ -254,6 +255,8 @@ static Node* primary() {
         return node;
     }
 
+    // ローカル変数は名前で決まる固定の位置にあるので、
+    // オフセットは構文解析の段階で決めることができる
     Token *tok = consume_ident();
     if (tok) {
         Node *node = calloc(1, sizeof(Node));

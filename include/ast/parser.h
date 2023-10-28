@@ -32,6 +32,8 @@ struct Node
     int32_t offset; 
 };
 
+extern Node* g_code[];
+
 Node* parse();
 
 #endif
