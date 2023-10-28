@@ -10,6 +10,8 @@
 // 現在着目しているトークン
 Token *g_token;
 
+char* token_kind_dic[] = {"TK_RESERVED", "TK_IDENT", "TK_NUM", "TK_EOF"};
+
 /**
  * @brief エラー箇所を報告する
  * @param loc エラー箇所のある文字列
@@ -43,24 +45,49 @@ bool startswitch(char* p, char* q) {
 }
 
 /**
- * @brief 新しいトークンを作成してcurに繋げる
+ * @brief 現在トークンに文字列のデータセットを行う
+ * @param [in] kind 現在トークンにセットしたいトークン種類
+ * @param [in] cur 現在トークンのポインタ
+ * @param [in] str 現在トークンにセットしたい文字列
+ * @param [in] len 現在トークンにセットしたい長さ
+ * @return 新規トークン
 */
 Token* new_token(TokenKind kind, Token *cur, char *str, int32_t len) {
+    cur->kind = kind;
+    cur->str = str;
+    cur->len = len;
+    if (TK_NUM == kind) {
+        log_debug("Create %s %d %d.", token_kind_dic[kind], cur->val, len);
+    } else {
+        log_debug("Create %s %s %d.", token_kind_dic[kind], str, len);
+    }
+
     Token *tok = calloc(1, sizeof(Token));
-    tok->kind = kind;
-    tok->str = str;
     cur->next = tok;
-    tok->len = len;
     return tok;
+}
+
+/**
+ * @brief 現在トークンに数値のデータセットを行う
+ * @param [in] kind 現在トークンにセットしたいトークン種類
+ * @param [in] cur 現在トークンのポインタ
+ * @param [in] num 現在トークンにセットしたい数値
+ * @param [in] len 現在トークンにセットしたい長さ
+ * @return 新規トークン
+*/
+Token* new_num_token(TokenKind kind, Token* cur, int32_t num, int32_t len) {
+    cur->val = num;
+    return new_token(kind, cur, NULL, len);
 }
 
 /**
  * @brief 入力文字列pをトークナイズしてそれを返す
 */
-Token* tokenize(char *p) {
+Token* tokenize() {
     Token head;
     head.next = NULL;
     Token *cur = &head;
+    char* p = g_user_input;
 
     while (*p) {
         // 空白文字をスキップ
@@ -82,19 +109,24 @@ Token* tokenize(char *p) {
             continue;
         }
 
-        if (strchr("+-*/()<>", *p)) {
+        if (strchr("+-*/()<>;", *p)) {
             cur = new_token(TK_RESERVED, cur, p, 1);
             p++;
             continue;
         }
         
         if (isdigit(*p)) {
-            cur = new_token(TK_NUM, cur, p, 0);
             char* q = p;
-            cur->val = strtol(p, &p, 10);
-            cur->len = p - q;
+            int32_t num = (int32_t)strtol(p, &p, 10);
+            cur = new_num_token(TK_NUM, cur, num, p-q);            
             continue;
         }
+
+        if ('a' <= *p && *p <= 'z') {
+            cur = new_token(TK_IDENT, cur, p, 1);
+            p++;
+            continue;
+        }        
 
         error_at(p, "トークナイズできません");
     }

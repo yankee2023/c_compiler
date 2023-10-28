@@ -23,7 +23,7 @@ struct Token {
 extern Token* g_token;
 extern char* g_user_input;
 
-Token* tokenize(char *p);
+Token* tokenize();
 void error_at(char *loc, char *fmt, ...);
 
 #endif

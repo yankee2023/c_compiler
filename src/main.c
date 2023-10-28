@@ -22,7 +22,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     g_user_input = argv[1];
-    g_token = tokenize(g_user_input);
+    g_token = tokenize();
 
     Node* node = parse();
 
